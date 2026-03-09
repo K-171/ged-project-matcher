@@ -40,6 +40,7 @@ import {
   User,
   GripVertical,
   CheckCircle2,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SortableProjectCard } from "@/components/sortable-project-card";
@@ -213,6 +214,12 @@ export function DashboardClient({
     setRankedProjects((prev) => prev.filter((p) => p.id !== projectId));
   }, []);
 
+  const clearAll = useCallback(() => {
+    if (rankedProjects.length === 0) return;
+    setRankedProjects([]);
+    toast.success("Classement réinitialisé");
+  }, [rankedProjects.length]);
+
   const handleSave = async () => {
     if (rankedProjects.length !== projects.length) {
       toast.error(`Vous devez classer les ${projects.length} projets.`);
@@ -304,9 +311,22 @@ export function DashboardClient({
                   <Trophy className="h-5 w-5 text-yellow-500" />
                   <CardTitle>Votre classement</CardTitle>
                 </div>
-                <Badge variant="secondary">
-                  {rankedProjects.length}/{projects.length}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {rankedProjects.length}/{projects.length}
+                  </Badge>
+                  {rankedProjects.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAll}
+                      className="h-8 gap-1.5 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Tout effacer</span>
+                    </Button>
+                  )}
+                </div>
               </div>
               <CardDescription>
                 Classez tous les projets par ordre de préférence.
