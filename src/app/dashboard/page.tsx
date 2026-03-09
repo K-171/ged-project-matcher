@@ -25,8 +25,8 @@ export default async function DashboardPage() {
         .order("rank"),
     ]);
 
-  if (!profile) {
-    // Profile may have just been created by the layout — try creating it
+  // Ensure profile exists
+  const resolvedProfile = profile ?? await (async () => {
     const meta = user.user_metadata ?? {};
     await supabase.from("profiles").upsert({
       id: user.id,
@@ -36,36 +36,22 @@ export default async function DashboardPage() {
       member_3: meta.member_3 || null,
       is_admin: false,
     });
-
-    // Re-fetch profile after creation
-    const { data: newProfile } = await supabase
+    const { data } = await supabase
       .from("profiles")
       .select("group_name, member_1, member_2, member_3, is_admin")
       .eq("id", user.id)
       .single();
+    return data;
+  })();
 
-    if (!newProfile || !projects) {
-      await supabase.auth.signOut();
-      redirect("/login");
-    }
-
-    return (
-      <DashboardClient
-        profile={newProfile}
-        projects={projects}
-        savedPreferences={preferences ?? []}
-      />
-    );
-  }
-
-  if (!projects) {
+  if (!resolvedProfile) {
     redirect("/login");
   }
 
   return (
     <DashboardClient
-      profile={profile}
-      projects={projects}
+      profile={resolvedProfile}
+      projects={projects ?? []}
       savedPreferences={preferences ?? []}
     />
   );
