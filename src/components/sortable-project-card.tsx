@@ -1,0 +1,108 @@
+"use client";
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, X, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import type { Project } from "@/lib/types";
+
+interface SortableProjectCardProps {
+  project: Project;
+  rank?: number;
+  onRemove?: () => void;
+  isOverlay?: boolean;
+}
+
+export function SortableProjectCard({
+  project,
+  rank,
+  onRemove,
+  isOverlay,
+}: SortableProjectCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const rankColors: Record<number, string> = {
+    1: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    2: "bg-gray-400/20 text-gray-300 border-gray-400/30",
+    3: "bg-amber-600/20 text-amber-500 border-amber-600/30",
+    4: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    5: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  };
+
+  const scoreMap: Record<number, number> = {
+    1: 10,
+    2: 8,
+    3: 6,
+    4: 4,
+    5: 2,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`
+        group flex items-center gap-3 rounded-lg border p-3 transition-colors
+        ${isDragging ? "opacity-50 border-dashed border-primary/50" : ""}
+        ${isOverlay ? "shadow-2xl border-primary bg-card rotate-2" : ""}
+        ${rank ? "bg-card hover:bg-accent/50" : "bg-card/50 hover:bg-card"}
+      `}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+      >
+        <GripVertical className="h-5 w-5" />
+      </button>
+
+      {rank && (
+        <Badge
+          variant="outline"
+          className={`text-xs font-bold min-w-[2.5rem] justify-center ${rankColors[rank] || ""}`}
+        >
+          #{rank}
+        </Badge>
+      )}
+
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium leading-snug truncate">
+          {project.title}
+        </p>
+        <div className="flex items-center gap-1.5 mt-1">
+          <User className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">
+            {project.professor}
+          </span>
+        </div>
+      </div>
+
+      {rank && (
+        <Badge variant="secondary" className="text-xs">
+          {scoreMap[rank]}pts
+        </Badge>
+      )}
+
+      {onRemove && (
+        <button
+          onClick={onRemove}
+          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
