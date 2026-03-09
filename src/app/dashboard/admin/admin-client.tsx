@@ -32,6 +32,7 @@ import {
   Clock,
 } from "lucide-react";
 import type { Project } from "@/lib/types";
+import { TOTAL_PROJECTS } from "@/lib/types";
 
 interface AssignmentRow {
   id: number;
@@ -156,15 +157,18 @@ export function AdminClient({
 
   const rankLabel = (rank: number | null) => {
     if (!rank) return <Badge variant="destructive">Non classé</Badge>;
-    const colors: Record<number, string> = {
-      1: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-      2: "bg-gray-400/20 text-gray-300 border-gray-400/30",
-      3: "bg-amber-600/20 text-amber-500 border-amber-600/30",
-      4: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      5: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    };
+    const color =
+      rank <= 3
+        ? rank === 1
+          ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+          : rank === 2
+            ? "bg-gray-400/20 text-gray-300 border-gray-400/30"
+            : "bg-amber-600/20 text-amber-500 border-amber-600/30"
+        : rank <= 10
+          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+          : "";
     return (
-      <Badge variant="outline" className={colors[rank] ?? ""}>
+      <Badge variant="outline" className={color}>
         Choix #{rank}
       </Badge>
     );
@@ -214,12 +218,12 @@ export function AdminClient({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalScore}/{totalGroups * 10}
+              {totalScore}/{totalGroups * TOTAL_PROJECTS}
             </div>
             <Progress
               value={
                 totalGroups > 0
-                  ? (totalScore / (totalGroups * 10)) * 100
+                  ? (totalScore / (totalGroups * TOTAL_PROJECTS)) * 100
                   : 0
               }
               className="mt-2 h-2"
@@ -295,13 +299,13 @@ export function AdminClient({
                       {group.member_1} & {group.member_2}{group.member_3 ? ` & ${group.member_3}` : ""}
                     </TableCell>
                     <TableCell>
-                      {count >= 5 ? (
+                      {count >= TOTAL_PROJECTS ? (
                         <Badge
                           variant="outline"
                           className="bg-green-500/10 text-green-400 border-green-500/30"
                         >
                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Soumis ({count}/5)
+                          Soumis ({count}/{TOTAL_PROJECTS})
                         </Badge>
                       ) : count > 0 ? (
                         <Badge
@@ -309,7 +313,7 @@ export function AdminClient({
                           className="bg-yellow-500/10 text-yellow-400 border-yellow-500/30"
                         >
                           <Clock className="h-3 w-3 mr-1" />
-                          Partiel ({count}/5)
+                          Partiel ({count}/{TOTAL_PROJECTS})
                         </Badge>
                       ) : (
                         <Badge
@@ -336,7 +340,7 @@ export function AdminClient({
             <CardTitle className="text-lg">Résultats de l&apos;affectation</CardTitle>
             <CardDescription>
               Affectation optimale par algorithme hongrois — Score total :{" "}
-              <strong>{totalScore}</strong> / {totalGroups * 10}
+              <strong>{totalScore}</strong> / {totalGroups * TOTAL_PROJECTS}
             </CardDescription>
           </CardHeader>
           <CardContent>
