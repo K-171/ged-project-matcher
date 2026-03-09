@@ -6,6 +6,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -111,6 +112,7 @@ export function DashboardClient({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -233,8 +235,10 @@ export function DashboardClient({
     }
   };
 
+  const [mobileTab, setMobileTab] = useState<"ranked" | "available">("available");
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 sm:pb-0">
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -264,6 +268,26 @@ export function DashboardClient({
         </div>
       </div>
 
+      {/* Mobile tab toggle */}
+      <div className="flex gap-2 sm:hidden">
+        <Button
+          variant={mobileTab === "ranked" ? "default" : "outline"}
+          onClick={() => setMobileTab("ranked")}
+          className="flex-1"
+        >
+          <Trophy className="h-4 w-4 mr-1" />
+          Classement ({rankedProjects.length})
+        </Button>
+        <Button
+          variant={mobileTab === "available" ? "default" : "outline"}
+          onClick={() => setMobileTab("available")}
+          className="flex-1"
+        >
+          <List className="h-4 w-4 mr-1" />
+          Disponibles ({availableProjects.length})
+        </Button>
+      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -273,7 +297,7 @@ export function DashboardClient({
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* LEFT: Ranked Top 5 */}
-          <Card className="border-primary/20">
+          <Card className={`border-primary/20 ${mobileTab === "available" ? "hidden sm:block" : ""}`}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -332,7 +356,7 @@ export function DashboardClient({
           </Card>
 
           {/* RIGHT: Available Projects */}
-          <Card>
+          <Card className={`${mobileTab === "ranked" ? "hidden sm:block" : ""}`}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <List className="h-5 w-5 text-muted-foreground" />
@@ -353,7 +377,7 @@ export function DashboardClient({
               </div>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[500px] pr-3">
+              <ScrollArea className="max-h-[60vh] sm:h-[500px] pr-3">
                 <SortableContext
                   items={availableProjects.map((p) => p.id)}
                   strategy={verticalListSortingStrategy}
@@ -363,7 +387,7 @@ export function DashboardClient({
                       <button
                         key={project.id}
                         onClick={() => addToRanked(project)}
-                        className="w-full text-left group flex items-center gap-3 rounded-lg border p-3 transition-colors bg-card/50 hover:bg-card hover:border-primary/30"
+                        className="w-full text-left group flex items-center gap-3 rounded-lg border p-4 sm:p-3 transition-colors bg-card/50 hover:bg-card hover:border-primary/30"
                       >
                         <GripVertical className="h-5 w-5 text-muted-foreground opacity-50" />
                         <Badge
@@ -399,6 +423,18 @@ export function DashboardClient({
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Sticky save button for mobile */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 sm:hidden">
+        <Button
+          onClick={handleSave}
+          disabled={saving || rankedProjects.length !== projects.length}
+          className="w-full gap-2 shadow-lg"
+        >
+          <Save className="h-4 w-4" />
+          {saving ? "Sauvegarde..." : `Sauvegarder (${rankedProjects.length}/${projects.length})`}
+        </Button>
+      </div>
     </div>
   );
 }

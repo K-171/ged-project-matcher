@@ -59,7 +59,7 @@ export function SortableProjectCard({
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none p-2 -m-2"
       >
         <GripVertical className="h-5 w-5" />
       </button>
@@ -94,7 +94,7 @@ export function SortableProjectCard({
       {onRemove && (
         <button
           onClick={onRemove}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+          className="sm:opacity-0 sm:group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity p-1 -m-1"
         >
           <X className="h-4 w-4" />
         </button>

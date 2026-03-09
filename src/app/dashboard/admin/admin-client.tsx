@@ -303,7 +303,7 @@ export function AdminClient({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3">
         <Button
           onClick={handleRunAlgorithm}
           disabled={running}
@@ -337,7 +337,7 @@ export function AdminClient({
         <CardHeader>
           <CardTitle className="text-lg">Statut des soumissions</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -402,13 +402,13 @@ export function AdminClient({
               <strong>{totalScore}</strong> / {totalGroups * TOTAL_PROJECTS}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Binôme</TableHead>
                   <TableHead>Projet assigné</TableHead>
-                  <TableHead>Professeur</TableHead>
+                  <TableHead className="hidden sm:table-cell">Professeur</TableHead>
                   <TableHead>Choix</TableHead>
                   <TableHead className="text-right">Score</TableHead>
                 </TableRow>
@@ -429,7 +429,7 @@ export function AdminClient({
                         {a.projects.title}
                       </p>
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm hidden sm:table-cell">
                       {a.projects.professor}
                     </TableCell>
                     <TableCell>{rankLabel(a.rank_given)}</TableCell>
