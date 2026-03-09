@@ -44,9 +44,9 @@ export default async function DashboardPage() {
   }
 
   // Ensure profile exists
-  const resolvedProfile = profile ?? await (async () => {
+  const upsertError = !profile ? await (async () => {
     const meta = user.user_metadata ?? {};
-    await supabase.from("profiles").upsert({
+    const { error } = await supabase.from("profiles").upsert({
       id: user.id,
       group_name: meta.group_name || "Sans nom",
       member_1: meta.member_1 || "",
@@ -54,18 +54,30 @@ export default async function DashboardPage() {
       member_3: meta.member_3 || null,
       is_admin: false,
     });
-    const { data } = await supabase
-      .from("profiles")
-      .select("group_name, member_1, member_2, member_3, is_admin")
-      .eq("id", user.id)
-      .single();
-    return data;
-  })();
+    return error;
+  })() : null;
+
+  // Re-fetch profile if upsert was attempted
+  const resolvedProfile = profile ?? (await supabase
+    .from("profiles")
+    .select("group_name, member_1, member_2, member_3, is_admin")
+    .eq("id", user.id)
+    .single()).data;
 
   if (!resolvedProfile) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Profil introuvable. <a href="/login" className="underline">Se reconnecter</a>
+      <div className="p-8 space-y-3 text-sm">
+        <h2 className="text-xl font-bold text-red-400">Debug: Profil introuvable</h2>
+        <p><strong>User ID:</strong> {user.id}</p>
+        <p><strong>User email:</strong> {user.email}</p>
+        <p><strong>User metadata:</strong> {JSON.stringify(user.user_metadata)}</p>
+        <p><strong>Profile query error:</strong> {JSON.stringify(profileResult.error)}</p>
+        <p><strong>Upsert error:</strong> {JSON.stringify(upsertError)}</p>
+        <p><strong>Projects query error:</strong> {JSON.stringify(projectsResult.error)}</p>
+        <p><strong>Projects count:</strong> {projects?.length ?? "null"}</p>
+        <p><strong>Supabase URL:</strong> {process.env.NEXT_PUBLIC_SUPABASE_URL}</p>
+        <p><strong>Key prefix:</strong> {process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY?.substring(0, 20)}...</p>
+        <a href="/login" className="underline text-primary">Se reconnecter</a>
       </div>
     );
   }
