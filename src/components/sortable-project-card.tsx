@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/lib/types";
+import { RANK_SCORES, type Project } from "@/lib/types";
 
 interface SortableProjectCardProps {
   project: Project;
@@ -33,21 +33,17 @@ export function SortableProjectCard({
     transition,
   };
 
-  const rankColors: Record<number, string> = {
-    1: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    2: "bg-gray-400/20 text-gray-300 border-gray-400/30",
-    3: "bg-amber-600/20 text-amber-500 border-amber-600/30",
-    4: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    5: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  };
-
-  const scoreMap: Record<number, number> = {
-    1: 10,
-    2: 8,
-    3: 6,
-    4: 4,
-    5: 2,
-  };
+  const rankColor = rank
+    ? rank <= 3
+      ? rank === 1
+        ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+        : rank === 2
+          ? "bg-gray-400/20 text-gray-300 border-gray-400/30"
+          : "bg-amber-600/20 text-amber-500 border-amber-600/30"
+      : rank <= 10
+        ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+        : ""
+    : "";
 
   return (
     <div
@@ -71,7 +67,7 @@ export function SortableProjectCard({
       {rank && (
         <Badge
           variant="outline"
-          className={`text-xs font-bold min-w-[2.5rem] justify-center ${rankColors[rank] || ""}`}
+          className={`text-xs font-bold min-w-[2.5rem] justify-center ${rankColor}`}
         >
           #{rank}
         </Badge>
@@ -91,7 +87,7 @@ export function SortableProjectCard({
 
       {rank && (
         <Badge variant="secondary" className="text-xs">
-          {scoreMap[rank]}pts
+          {RANK_SCORES[rank]}pts
         </Badge>
       )}
 
