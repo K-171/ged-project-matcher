@@ -26,9 +26,20 @@ export default async function DashboardLayout({
     .single();
 
   if (!profile) {
-    await supabase.auth.signOut();
-    redirect("/login");
+    // Profile missing — create it from user metadata
+    const meta = user.user_metadata ?? {};
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      group_name: meta.group_name || "Sans nom",
+      member_1: meta.member_1 || "",
+      member_2: meta.member_2 || "",
+      member_3: meta.member_3 || null,
+      is_admin: false,
+    });
   }
+
+  const displayName = profile?.group_name ?? user.user_metadata?.group_name ?? "Mon binôme";
+  const isAdmin = profile?.is_admin ?? false;
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,14 +54,14 @@ export default async function DashboardLayout({
           </Link>
 
           <div className="flex items-center gap-3">
-            {profile?.is_admin && (
+            {isAdmin && (
               <Button variant="outline" size="sm" render={<Link href="/dashboard/admin" />}>
                 <Shield className="h-4 w-4 mr-1" />
                 Admin
               </Button>
             )}
             <span className="text-sm text-muted-foreground hidden sm:inline">
-              {profile?.group_name}
+              {displayName}
             </span>
             <form action={signOut}>
               <Button variant="ghost" size="sm" type="submit">

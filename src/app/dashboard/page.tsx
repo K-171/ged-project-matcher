@@ -25,10 +25,37 @@ export default async function DashboardPage() {
         .order("rank"),
     ]);
 
-  if (!profile || !projects) {
-    // No profile found — sign out to clear stale session and avoid redirect loop
-    await supabase.auth.signOut();
-    redirect("/login");
+  if (!profile) {
+    // Profile may have just been created by the layout — try creating it
+    const meta = user.user_metadata ?? {};
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      group_name: meta.group_name || "Sans nom",
+      member_1: meta.member_1 || "",
+      member_2: meta.member_2 || "",
+      member_3: meta.member_3 || null,
+      is_admin: false,
+    });
+
+    // Re-fetch profile after creation
+    const { data: newProfile } = await supabase
+      .from("profiles")
+      .select("group_name, member_1, member_2, member_3, is_admin")
+      .eq("id", user.id)
+      .single();
+
+    if (!newProfile || !projects) {
+      await supabase.auth.signOut();
+      redirect("/login");
+    }
+
+    return (
+      <DashboardClient
+        profile={newProfile}
+        projects={projects}
+        savedPreferences={preferences ?? []}
+      />
+    );
   }
 
   return (
