@@ -58,6 +58,10 @@ export default async function DashboardPage() {
     );
   }
 
+  if (!projects) {
+    redirect("/login");
+  }
+
   return (
     <DashboardClient
       profile={profile}
