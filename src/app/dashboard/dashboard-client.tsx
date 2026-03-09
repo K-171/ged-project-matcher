@@ -50,6 +50,7 @@ interface DashboardClientProps {
     group_name: string;
     member_1: string;
     member_2: string;
+    member_3: string | null;
     is_admin: boolean;
   };
   projects: Project[];
@@ -239,7 +240,7 @@ export function DashboardClient({
         <div>
           <h1 className="text-2xl font-bold">Bienvenue, {profile.group_name}</h1>
           <p className="text-muted-foreground text-sm">
-            {profile.member_1} & {profile.member_2}
+            {profile.member_1} & {profile.member_2}{profile.member_3 ? ` & ${profile.member_3}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">

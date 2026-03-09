@@ -127,6 +127,16 @@ export default function LoginPage() {
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label htmlFor="member_3" className="text-sm font-medium">
+                      Membre 3 (Optionnel)
+                    </label>
+                    <Input
+                      id="member_3"
+                      name="member_3"
+                      placeholder="Prénom Nom"
+                    />
+                  </div>
                 </>
               )}
 

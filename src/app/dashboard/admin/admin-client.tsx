@@ -40,14 +40,14 @@ interface AssignmentRow {
   rank_given: number | null;
   score: number;
   run_at: string;
-  profiles: { group_name: string; member_1: string; member_2: string };
+  profiles: { group_name: string; member_1: string; member_2: string; member_3: string | null };
   projects: { title: string; professor: string };
 }
 
 interface AdminClientProps {
   totalGroups: number;
   submittedGroups: number;
-  groups: { id: string; group_name: string; member_1: string; member_2: string }[];
+  groups: { id: string; group_name: string; member_1: string; member_2: string; member_3: string | null }[];
   projects: Project[];
   preferences: { group_id: string; project_id: number; rank: number }[];
   assignments: AssignmentRow[];
@@ -92,6 +92,8 @@ export function AdminClient({
                 groups.find((g) => g.id === a.group_id)?.member_1 ?? "",
               member_2:
                 groups.find((g) => g.id === a.group_id)?.member_2 ?? "",
+              member_3:
+                groups.find((g) => g.id === a.group_id)?.member_3 ?? null,
             },
             projects: {
               title: a.project_title,
@@ -121,6 +123,7 @@ export function AdminClient({
       "Binôme",
       "Membre 1",
       "Membre 2",
+      "Membre 3",
       "Projet",
       "Professeur",
       "Choix",
@@ -131,7 +134,9 @@ export function AdminClient({
       a.profiles.group_name,
       a.profiles.member_1,
       a.profiles.member_2,
+      a.profiles.member_3 ?? "",
       `"${a.projects.title.replace(/"/g, '""')}"`,
+
       a.projects.professor,
       a.rank_given ? `Choix ${a.rank_given}` : "Non classé",
       a.score.toString(),
@@ -287,7 +292,7 @@ export function AdminClient({
                       {group.group_name}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {group.member_1} & {group.member_2}
+                      {group.member_1} & {group.member_2}{group.member_3 ? ` & ${group.member_3}` : ""}
                     </TableCell>
                     <TableCell>
                       {count >= 5 ? (
@@ -352,7 +357,7 @@ export function AdminClient({
                       <div>
                         <p className="font-medium">{a.profiles.group_name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {a.profiles.member_1} & {a.profiles.member_2}
+                          {a.profiles.member_1} & {a.profiles.member_2}{a.profiles.member_3 ? ` & ${a.profiles.member_3}` : ""}
                         </p>
                       </div>
                     </TableCell>

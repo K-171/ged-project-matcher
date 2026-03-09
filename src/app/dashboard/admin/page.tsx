@@ -29,14 +29,14 @@ export default async function AdminPage() {
   ] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, group_name, member_1, member_2")
+      .select("id, group_name, member_1, member_2, member_3")
       .order("group_name"),
     supabase.from("projects").select("*").order("id"),
     supabase.from("preferences").select("group_id, project_id, rank"),
     supabase
       .from("assignments")
       .select(
-        "id, group_id, project_id, rank_given, score, run_at, profiles(group_name, member_1, member_2), projects(title, professor)"
+        "id, group_id, project_id, rank_given, score, run_at, profiles(group_name, member_1, member_2, member_3), projects(title, professor)"
       )
       .order("score", { ascending: false }),
   ]);

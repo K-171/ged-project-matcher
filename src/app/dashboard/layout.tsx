@@ -25,6 +25,11 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
+  if (!profile) {
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}

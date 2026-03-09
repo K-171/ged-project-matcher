@@ -14,7 +14,7 @@ export default async function DashboardPage() {
     await Promise.all([
       supabase
         .from("profiles")
-        .select("group_name, member_1, member_2, is_admin")
+        .select("group_name, member_1, member_2, member_3, is_admin")
         .eq("id", user.id)
         .single(),
       supabase.from("projects").select("*").order("id"),
@@ -25,7 +25,11 @@ export default async function DashboardPage() {
         .order("rank"),
     ]);
 
-  if (!profile || !projects) redirect("/login");
+  if (!profile || !projects) {
+    // No profile found — sign out to clear stale session and avoid redirect loop
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
 
   return (
     <DashboardClient

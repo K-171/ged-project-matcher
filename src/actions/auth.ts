@@ -24,28 +24,34 @@ export async function signUpWithEmail(formData: FormData) {
   const groupName = formData.get("group_name") as string;
   const member1 = formData.get("member_1") as string;
   const member2 = formData.get("member_2") as string;
+  const member3 = (formData.get("member_3") as string) || null;
 
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        group_name: groupName,
+        member_1: member1,
+        member_2: member2,
+        member_3: member3,
+      },
+    },
+  });
 
   if (error) {
     return { error: error.message };
   }
 
-  if (data.user) {
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: data.user.id,
-      group_name: groupName,
-      member_1: member1,
-      member_2: member2,
-      is_admin: false,
-    });
-
-    if (profileError) {
-      return { error: profileError.message };
-    }
+  // If email confirmation is disabled, the session is available immediately
+  if (data.session) {
+    redirect("/dashboard");
   }
 
-  redirect("/dashboard");
+  // If email confirmation is enabled, user must confirm first
+  return {
+    error: "Vérifiez votre email pour confirmer votre inscription.",
+  };
 }
 
 export async function signOut() {

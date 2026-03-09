@@ -3,6 +3,7 @@ export type Profile = {
   group_name: string;
   member_1: string;
   member_2: string;
+  member_3: string | null;
   is_admin: boolean;
   created_at: string;
 };

@@ -14,6 +14,7 @@ CREATE TABLE public.profiles (
   group_name  TEXT NOT NULL,               -- e.g. "Binôme 1"
   member_1    TEXT NOT NULL,               -- full name
   member_2    TEXT NOT NULL,               -- full name
+  member_3    TEXT,                         -- optional third member
   is_admin    BOOLEAN NOT NULL DEFAULT FALSE,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
