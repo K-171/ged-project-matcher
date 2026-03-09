@@ -31,20 +31,21 @@ CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
--- Admins can view all profiles
+-- Admins can view all profiles (uses auth.users to avoid recursion)
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (
     EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.is_admin = TRUE
+      SELECT 1 FROM auth.users
+      WHERE auth.users.id = auth.uid()
+      AND (auth.users.raw_user_meta_data->>'is_admin')::boolean = TRUE
     )
   );
 
--- Allow insert during signup (service role or user themselves)
+-- Allow insert during signup
 CREATE POLICY "Users can insert own profile"
   ON public.profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (true);
 
 -- ============================================================
 -- 2. PROJECTS
