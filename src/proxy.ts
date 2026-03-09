@@ -25,14 +25,14 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // Use getSession (reads from cookie, no network round-trip)
+  // Use getUser() to verify JWT and refresh tokens properly
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Redirect unauthenticated users to login
   if (
-    !session &&
+    !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/auth")
   ) {
@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Redirect authenticated users away from login
-  if (session && request.nextUrl.pathname.startsWith("/login")) {
+  if (user && request.nextUrl.pathname.startsWith("/login")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

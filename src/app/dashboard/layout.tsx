@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { signOut } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, LogOut, Shield } from "lucide-react";
@@ -15,17 +14,16 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  // Proxy handles auth redirects — no redirect("/login") here to avoid loops
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("group_name, is_admin")
+        .eq("id", user.id)
+        .single()
+    : { data: null };
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("group_name, is_admin")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile) {
+  if (!profile && user) {
     // Profile missing — create it from user metadata
     const meta = user.user_metadata ?? {};
     await supabase.from("profiles").upsert({
@@ -38,7 +36,7 @@ export default async function DashboardLayout({
     });
   }
 
-  const displayName = profile?.group_name ?? user.user_metadata?.group_name ?? "Mon binôme";
+  const displayName = profile?.group_name ?? user?.user_metadata?.group_name ?? "Mon binôme";
   const isAdmin = profile?.is_admin ?? false;
 
   return (

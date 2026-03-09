@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { DashboardClient } from "./dashboard-client";
 
 export default async function DashboardPage() {
@@ -8,7 +7,14 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  // Proxy handles auth redirects — no redirect("/login") here to avoid loops
+  if (!user) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        Session expirée. <a href="/login" className="underline">Se reconnecter</a>
+      </div>
+    );
+  }
 
   const [profileResult, projectsResult, preferencesResult] =
     await Promise.all([
@@ -57,7 +63,11 @@ export default async function DashboardPage() {
   })();
 
   if (!resolvedProfile) {
-    redirect("/login");
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        Profil introuvable. <a href="/login" className="underline">Se reconnecter</a>
+      </div>
+    );
   }
 
   // Temporary debug info — remove after fixing
