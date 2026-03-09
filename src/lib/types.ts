@@ -42,15 +42,13 @@ export type PreferenceWithProject = Preference & {
   projects: Pick<Project, "title" | "professor">;
 };
 
-// Score mapping
-export const RANK_SCORES: Record<number, number> = {
-  1: 10,
-  2: 8,
-  3: 6,
-  4: 4,
-  5: 2,
-};
-
-export const MAX_RANKS = 5;
+// Score mapping — rank 1 gets highest score, decreasing linearly
+// rank 1 = 23pts, rank 2 = 22pts, ..., rank 23 = 1pt
 export const TOTAL_PROJECTS = 23;
+export const MAX_RANKS = TOTAL_PROJECTS;
+
+export const RANK_SCORES: Record<number, number> = Object.fromEntries(
+  Array.from({ length: TOTAL_PROJECTS }, (_, i) => [i + 1, TOTAL_PROJECTS - i])
+);
+
 export const TOTAL_GROUPS = 22;

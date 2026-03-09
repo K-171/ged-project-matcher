@@ -212,8 +212,8 @@ export function DashboardClient({
   }, []);
 
   const handleSave = async () => {
-    if (rankedProjects.length !== MAX_RANKS) {
-      toast.error(`Vous devez sélectionner exactement ${MAX_RANKS} projets.`);
+    if (rankedProjects.length !== projects.length) {
+      toast.error(`Vous devez classer les ${projects.length} projets.`);
       return;
     }
 
@@ -255,7 +255,7 @@ export function DashboardClient({
           )}
           <Button
             onClick={handleSave}
-            disabled={saving || rankedProjects.length !== MAX_RANKS}
+            disabled={saving || rankedProjects.length !== projects.length}
             className="gap-2"
           >
             <Save className="h-4 w-4" />
@@ -278,15 +278,15 @@ export function DashboardClient({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-yellow-500" />
-                  <CardTitle>Votre Top {MAX_RANKS}</CardTitle>
+                  <CardTitle>Votre classement</CardTitle>
                 </div>
                 <Badge variant="secondary">
-                  {rankedProjects.length}/{MAX_RANKS}
+                  {rankedProjects.length}/{projects.length}
                 </Badge>
               </div>
               <CardDescription>
-                Glissez-déposez ou cliquez pour ajouter des projets. Réordonnez
-                par glisser-déposer.
+                Classez tous les projets par ordre de préférence.
+                Glissez-déposez ou cliquez pour ajouter, réordonnez par glisser-déposer.
               </CardDescription>
             </CardHeader>
             <CardContent>

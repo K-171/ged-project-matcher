@@ -3,11 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 import {
   RANK_SCORES,
+  TOTAL_PROJECTS,
 } from "@/lib/types";
 import munkres from "munkres-js";
 
 const UNRANKED_COST = 100; // Prohibitively high cost for unranked projects
-const MAX_SCORE = 10;
+const MAX_SCORE = TOTAL_PROJECTS; // Highest possible score (rank 1)
 
 type AssignmentResult = {
   group_id: string;
