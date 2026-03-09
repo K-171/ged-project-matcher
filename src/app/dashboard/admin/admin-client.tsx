@@ -114,6 +114,56 @@ export function AdminClient({
     }
   };
 
+  const handleExportRankings = () => {
+    if (preferences.length === 0) {
+      toast.error("Aucun classement soumis.");
+      return;
+    }
+
+    const headers = [
+      "Binôme",
+      "Membre 1",
+      "Membre 2",
+      "Membre 3",
+      "Rang",
+      "Projet ID",
+      "Projet",
+      "Professeur",
+    ];
+
+    const rows = preferences
+      .slice()
+      .sort((a, b) => {
+        if (a.group_id !== b.group_id) return a.group_id.localeCompare(b.group_id);
+        return a.rank - b.rank;
+      })
+      .map((pref) => {
+        const group = groups.find((g) => g.id === pref.group_id);
+        const project = projects.find((p) => p.id === pref.project_id);
+        return [
+          group?.group_name ?? "",
+          group?.member_1 ?? "",
+          group?.member_2 ?? "",
+          group?.member_3 ?? "",
+          pref.rank.toString(),
+          pref.project_id.toString(),
+          `"${(project?.title ?? "").replace(/"/g, '""')}"`,
+          project?.professor ?? "",
+        ];
+      });
+
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `classements-ged-${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Classements téléchargés !");
+  };
+
   const handleExportCSV = () => {
     if (assignments.length === 0) {
       toast.error("Aucune affectation à exporter.");
@@ -264,12 +314,21 @@ export function AdminClient({
         </Button>
         <Button
           variant="outline"
+          onClick={handleExportRankings}
+          disabled={preferences.length === 0}
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Télécharger les classements
+        </Button>
+        <Button
+          variant="outline"
           onClick={handleExportCSV}
           disabled={assignments.length === 0}
           className="gap-2"
         >
           <Download className="h-4 w-4" />
-          Exporter CSV
+          Exporter affectations CSV
         </Button>
       </div>
 
