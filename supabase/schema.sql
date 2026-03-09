@@ -72,7 +72,7 @@ CREATE TABLE public.preferences (
   id          SERIAL PRIMARY KEY,
   group_id    UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   project_id  INTEGER NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
-  rank        INTEGER NOT NULL CHECK (rank >= 1 AND rank <= 5),
+  rank        INTEGER NOT NULL CHECK (rank >= 1 AND rank <= 23),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   -- Each group can rank a project only once
